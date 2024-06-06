@@ -6,22 +6,22 @@
     <el-dialog v-model="showDialog" title="上传数据" width="50%">
       <el-form :model="form">
         <el-form-item label="心率" :label-width="formLabelWidth">
-          <el-input v-model="form.heartRate"></el-input>
+          <el-input v-model="form.heartRate" type="number"></el-input>
         </el-form-item>
         <el-form-item label="步数" :label-width="formLabelWidth">
-          <el-input v-model="form.steps"></el-input>
+          <el-input v-model="form.steps" type="number"></el-input>
         </el-form-item>
         <el-form-item label="血氧" :label-width="formLabelWidth">
-          <el-input v-model="form.spO2"></el-input>
+          <el-input v-model="form.spO2" type="number"></el-input>
         </el-form-item>
         <el-form-item label="血压" :label-width="formLabelWidth">
           <el-input v-model="form.bloodPressure"></el-input>
         </el-form-item>
         <el-form-item label="体温" :label-width="formLabelWidth">
-          <el-input v-model="form.temperature"></el-input>
+          <el-input v-model="form.temperature" type="number"></el-input>
         </el-form-item>
         <el-form-item label="呼吸率" :label-width="formLabelWidth">
-          <el-input v-model="form.respiratoryRate"></el-input>
+          <el-input v-model="form.respiratoryRate" type="number"></el-input>
         </el-form-item>
         <el-form-item label="压力等级" :label-width="formLabelWidth">
           <el-select v-model="form.stressLevel" placeholder="请选择压力等级">
@@ -72,17 +72,18 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useDataStore } from '../store/dataStore.js';
+import axios from '../http';
 
 const dataStore = useDataStore();
 const showDialog = ref(false);
 const form = ref({
-  heartRate: '',
-  steps: '',
-  spO2: '',
-  bloodPressure: '',
-  temperature: '',
-  respiratoryRate: '',
-  stressLevel: null,
+  heartRate: 70, // 默认值
+  steps: 5000, // 默认值
+  spO2: 98, // 默认值
+  bloodPressure: '120/80', // 默认值
+  temperature: 36.5, // 默认值
+  respiratoryRate: 16, // 默认值
+  stressLevel: 1, // 默认值
 });
 const formLabelWidth = '100px';
 
@@ -107,7 +108,7 @@ const closeDialog = () => {
   console.log("Dialog closed");
 };
 
-const submitData = () => {
+const submitData = async () => {
   const newEntry = {
     ...form.value,
     heartRate: parseInt(form.value.heartRate),
@@ -121,20 +122,27 @@ const submitData = () => {
     advice: getAdvice(parseInt(form.value.stressLevel)),
   };
   console.log("New Entry:", newEntry);
-  dataStore.addData(newEntry);
-  showDialog.value = false;
-  resetForm();
+  try {
+    await axios.post('/api/data', newEntry);
+    console.log('Data submitted successfully');
+    dataStore.addData(newEntry);
+    showDialog.value = false;
+    resetForm();
+  } catch (error) {
+    console.error('Error submitting data:', error.response ? error.response.data : error.message);
+    alert('数据提交失败');
+  }
 };
 
 const resetForm = () => {
   form.value = {
-    heartRate: '',
-    steps: '',
-    spO2: '',
-    bloodPressure: '',
-    temperature: '',
-    respiratoryRate: '',
-    stressLevel: null,
+    heartRate: 70, // 默认值
+    steps: 5000, // 默认值
+    spO2: 98, // 默认值
+    bloodPressure: '120/80', // 默认值
+    temperature: 36.5, // 默认值
+    respiratoryRate: 16, // 默认值
+    stressLevel: 1, // 默认值
   };
 };
 

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
+const dataRoutes = require('./routes/data');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/api', authRoutes);
+app.use('/api', dataRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

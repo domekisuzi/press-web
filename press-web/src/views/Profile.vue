@@ -25,6 +25,7 @@
 <script setup>
 import { onMounted, reactive } from 'vue';
 import { useUserStore } from '../store/userStore';
+import axios from '../http';
 
 const userStore = useUserStore();
 const profileForm = reactive({
@@ -49,9 +50,18 @@ onMounted(() => {
   }
 });
 
-const updateProfile = () => {
-  // 处理更新个人信息的逻辑
-  console.log('Updating profile:', profileForm);
+const updateProfile = async () => {
+  try {
+    const response = await axios.put('/api/profile', {
+      email: profileForm.email,
+      phone: profileForm.phone,
+    });
+    userStore.setUser(response.data.user);
+    alert('个人信息更新成功');
+  } catch (error) {
+    console.error('Error updating profile:', error.response ? error.response.data : error.message);
+    alert('个人信息更新失败');
+  }
 };
 </script>
 

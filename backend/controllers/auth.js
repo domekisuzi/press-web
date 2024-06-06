@@ -2,10 +2,10 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 
 exports.register = async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, email, phone } = req.body;
     console.log(`Registering user: ${username}`);
     try {
-        const user = new User({ username, password });
+        const user = new User({ username, password, email, phone });
         await user.save();
         res.status(201).send({ message: 'User registered successfully' });
     } catch (error) {
@@ -34,6 +34,19 @@ exports.login = async (req, res) => {
         res.send({ user, token });
     } catch (error) {
         console.error('Error logging in user:', error);
+        res.status(400).send(error);
+    }
+};
+
+exports.updateProfile = async (req, res) => {
+    const { _id: userId } = req.user;
+    const { email, phone } = req.body;
+    console.log(`Updating profile for user: ${userId}`);
+    try {
+        const user = await User.findByIdAndUpdate(userId, { email, phone }, { new: true });
+        res.send({ user });
+    } catch (error) {
+        console.error('Error updating profile:', error.message);
         res.status(400).send(error);
     }
 };
