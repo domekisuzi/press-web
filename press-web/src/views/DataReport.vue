@@ -11,25 +11,26 @@
         <el-form-item label="步数" :label-width="formLabelWidth">
           <el-input v-model="form.steps" type="number"></el-input>
         </el-form-item>
-        <el-form-item label="血氧" :label-width="formLabelWidth">
+        <el-form-item label="距离 (km)" :label-width="formLabelWidth">
+          <el-input v-model="form.distance" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="卡路里消耗" :label-width="formLabelWidth">
+          <el-input v-model="form.caloriesBurned" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="血氧 (%)" :label-width="formLabelWidth">
           <el-input v-model="form.spO2" type="number"></el-input>
         </el-form-item>
-        <el-form-item label="血压" :label-width="formLabelWidth">
-          <el-input v-model="form.bloodPressure"></el-input>
+        <el-form-item label="收缩压" :label-width="formLabelWidth">
+          <el-input v-model="form.systolicBp" type="number"></el-input>
         </el-form-item>
-        <el-form-item label="体温" :label-width="formLabelWidth">
+        <el-form-item label="舒张压" :label-width="formLabelWidth">
+          <el-input v-model="form.diastolicBp" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="体温 (°C)" :label-width="formLabelWidth">
           <el-input v-model="form.temperature" type="number"></el-input>
         </el-form-item>
         <el-form-item label="呼吸率" :label-width="formLabelWidth">
           <el-input v-model="form.respiratoryRate" type="number"></el-input>
-        </el-form-item>
-        <el-form-item label="压力等级" :label-width="formLabelWidth">
-          <el-select v-model="form.stressLevel" placeholder="请选择压力等级">
-            <el-option label="无压力" value="0"></el-option>
-            <el-option label="低压力" value="1"></el-option>
-            <el-option label="中等压力" value="2"></el-option>
-            <el-option label="高压力" value="3"></el-option>
-          </el-select>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -43,8 +44,11 @@
         <el-table-column prop="date" label="日期" width="150"></el-table-column>
         <el-table-column prop="heartRate" label="心率" width="120"></el-table-column>
         <el-table-column prop="steps" label="步数" width="120"></el-table-column>
+        <el-table-column prop="distance" label="距离 (km)" width="120"></el-table-column>
+        <el-table-column prop="caloriesBurned" label="卡路里消耗" width="120"></el-table-column>
         <el-table-column prop="spO2" label="血氧" width="120"></el-table-column>
-        <el-table-column prop="bloodPressure" label="血压" width="120"></el-table-column>
+        <el-table-column prop="systolicBp" label="收缩压" width="120"></el-table-column>
+        <el-table-column prop="diastolicBp" label="舒张压" width="120"></el-table-column>
         <el-table-column prop="temperature" label="体温" width="120"></el-table-column>
         <el-table-column prop="respiratoryRate" label="呼吸率" width="120"></el-table-column>
         <el-table-column prop="stressLevel" label="压力等级" width="120">
@@ -72,20 +76,22 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useDataStore } from '../store/dataStore.js';
+import axios from '../http';
 import { useUserStore } from '../store/userStore.js';
-import axios from "../http.js";
 
 const dataStore = useDataStore();
 const userStore = useUserStore();
 const showDialog = ref(false);
 const form = ref({
-  heartRate: 70, // 默认值
-  steps: 5000, // 默认值
-  spO2: 98, // 默认值
-  bloodPressure: '120/80', // 默认值
-  temperature: 36.5, // 默认值
-  respiratoryRate: 16, // 默认值
-  stressLevel: 1, // 默认值
+  heartRate: 70,
+  steps: 5000,
+  distance: 5,
+  caloriesBurned: 200,
+  spO2: 98,
+  systolicBp: 120,
+  diastolicBp: 80,
+  temperature: 36.5,
+  respiratoryRate: 16,
 });
 const formLabelWidth = '100px';
 
@@ -112,19 +118,27 @@ const closeDialog = () => {
 
 const submitData = async () => {
   const newEntry = {
-    ...form.value,
     heartRate: parseInt(form.value.heartRate),
     steps: parseInt(form.value.steps),
+    distance: parseFloat(form.value.distance),
+    caloriesBurned: parseInt(form.value.caloriesBurned),
     spO2: parseInt(form.value.spO2),
-    bloodPressure: form.value.bloodPressure,
+    systolicBp: parseInt(form.value.systolicBp),
+    diastolicBp: parseInt(form.value.diastolicBp),
     temperature: parseFloat(form.value.temperature),
     respiratoryRate: parseInt(form.value.respiratoryRate),
-    stressLevel: parseInt(form.value.stressLevel),
-    date: new Date().toISOString().split('T')[0],
-    advice: getAdvice(parseInt(form.value.stressLevel)),
   };
-  console.log("New Entry:", newEntry);
+
   try {
+    // 调用 Flask 预测接口，确保请求发送到正确的端口号
+    const response = await axios.post('http://localhost:5000/predict', [newEntry]);
+    const stressLevel = response.data.stress_level;
+
+    newEntry.stressLevel = stressLevel;
+    newEntry.date = new Date().toISOString().split('T')[0];
+    newEntry.advice = getAdvice(stressLevel);
+
+    // 提交数据到后端 API
     await axios.post('/api/data', newEntry);
     console.log('Data submitted successfully');
     dataStore.addData(newEntry);
@@ -138,13 +152,15 @@ const submitData = async () => {
 
 const resetForm = () => {
   form.value = {
-    heartRate: 70, // 默认值
-    steps: 5000, // 默认值
-    spO2: 98, // 默认值
-    bloodPressure: '120/80', // 默认值
-    temperature: 36.5, // 默认值
-    respiratoryRate: 16, // 默认值
-    stressLevel: 1, // 默认值
+    heartRate: 70,
+    steps: 5000,
+    distance: 5,
+    caloriesBurned: 200,
+    spO2: 98,
+    systolicBp: 120,
+    diastolicBp: 80,
+    temperature: 36.5,
+    respiratoryRate: 16,
   };
 };
 
@@ -197,29 +213,8 @@ const getAdvice = (level) => {
   }
 };
 
-// 新增函数：加载用户数据
-const loadUserData = async () => {
-
-  try {
-    await userStore.loadUser();
-    if (userStore.token) {
-      const response = await axios.get('/api/data', {
-        headers: {
-          Authorization: `Bearer ${userStore.token}`,
-        },
-      });
-      dataStore.setData(response.data.data);
-      console.log("data:"+ response.data.data)
-    }
-  } catch (error) {
-    console.error('Error loading user data:', error);
-  }
-
-};
-
 onMounted(() => {
-
-  loadUserData();
+  userStore.loadUser();
 });
 </script>
 

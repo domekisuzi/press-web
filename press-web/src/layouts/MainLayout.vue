@@ -89,16 +89,7 @@ const getRoute = (index) => {
 </script>
 
 <style scoped>
-html, body, #app {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-image: url('@/assets/background.svg');
-  background-size: cover;
-  background-position: center;
-}
+
 
 .header {
   width: 100%;
