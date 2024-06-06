@@ -58,7 +58,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="advice" label="建议" width="300"></el-table-column>
+        <el-table-column prop="advice" label="建议" width="200"></el-table-column>
       </el-table>
 
       <el-pagination
@@ -214,7 +214,7 @@ const getAdvice = (level) => {
 };
 
 onMounted(() => {
-  userStore.loadUser();
+  userStore.loadUserData();
 });
 </script>
 
@@ -232,7 +232,7 @@ onMounted(() => {
 
 .table-container {
   width: 100%;
-  max-width: 1200px;
+  //max-width: 1500px;
   margin-top: 20px;
   display: flex;
   flex-direction: column;

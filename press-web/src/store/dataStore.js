@@ -27,4 +27,5 @@ export const useDataStore = defineStore('dataStore', {
     },
 },{
     pinia: piniaInstance
+
 });
