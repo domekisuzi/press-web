@@ -26,7 +26,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import axios from '../http.js';
 
 const router = useRouter();
 const form = ref({
@@ -43,7 +43,7 @@ const register = async () => {
   try {
     await axios.post('/api/register', form.value);
     alert('注册成功，请登录');
-    router.push('/login');
+    router.push('/auth/login');
   } catch (error) {
     console.error(error);
     alert('注册失败，请重试');

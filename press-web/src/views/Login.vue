@@ -15,7 +15,7 @@
           <el-button type="primary" @click="login">登录</el-button>
         </el-form-item>
       </el-form>
-      <p>还没有账户？ <router-link to="auth/register">立即注册</router-link></p>
+      <p>还没有账户？ <router-link to="register">立即注册</router-link></p>
     </el-card>
   </div>
 </template>

@@ -70,11 +70,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useDataStore } from '../store/dataStore.js';
-import axios from '../http';
+import { useUserStore } from '../store/userStore.js';
+import axios from "../http.js";
 
 const dataStore = useDataStore();
+const userStore = useUserStore();
 const showDialog = ref(false);
 const form = ref({
   heartRate: 70, // 默认值
@@ -194,6 +196,31 @@ const getAdvice = (level) => {
       return '';
   }
 };
+
+// 新增函数：加载用户数据
+const loadUserData = async () => {
+
+  try {
+    await userStore.loadUser();
+    if (userStore.token) {
+      const response = await axios.get('/api/data', {
+        headers: {
+          Authorization: `Bearer ${userStore.token}`,
+        },
+      });
+      dataStore.setData(response.data.data);
+      console.log("data:"+ response.data.data)
+    }
+  } catch (error) {
+    console.error('Error loading user data:', error);
+  }
+
+};
+
+onMounted(() => {
+
+  loadUserData();
+});
 </script>
 
 <style scoped>

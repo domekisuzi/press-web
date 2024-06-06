@@ -25,4 +25,4 @@ app.use(router)
 app.mount('#app')
 
 const userStore = useUserStore();
-userStore.loadToken();
+userStore.loadUser();
