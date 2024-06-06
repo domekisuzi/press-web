@@ -42,9 +42,10 @@
       <el-col :span="6">
         <el-button type="primary" @click="goToReports" class="action-button">查看报告</el-button>
       </el-col>
-      <el-col :span="6">
-        <el-button type="primary" @click="goToCommunity" class="action-button">进入社区</el-button>
-      </el-col>
+<!--      <el-col :span="6">-->
+<!--        <el-button type="primary" @click="goToCommunity" class="action-button">进入社区</el-button>-->
+<!--      </el-col>-->
+
       <el-col :span="6">
         <el-button type="primary" @click="goToTips" class="action-button">了解更多</el-button>
       </el-col>

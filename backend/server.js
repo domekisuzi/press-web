@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const authRoutes = require('./routes/auth');
 const dataRoutes = require('./routes/data'); // 确保引入数据路由
+const  newsRoutes = require('./routes/news')
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -25,7 +26,7 @@ app.use((req, res, next) => {
 
 app.use('/api', authRoutes); // 确保使用 '/api' 作为前缀
 app.use('/api', dataRoutes); // 确保使用 '/api' 作为前缀
-
+app.use('/api', newsRoutes);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

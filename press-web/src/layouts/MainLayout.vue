@@ -13,12 +13,12 @@
           <el-menu-item index="1">首页</el-menu-item>
           <el-menu-item index="2">数据日报</el-menu-item>
           <el-menu-item index="3">报告</el-menu-item>
-          <el-menu-item index="4">社区</el-menu-item>
+<!--          <el-menu-item index="4">社区</el-menu-item>-->
           <el-menu-item index="5">每日医疗新闻</el-menu-item>
         </el-menu>
         <el-dropdown class="user-dropdown" @command="handleCommand">
           <span class="el-dropdown-link">
-            用户名<i class="el-icon-arrow-down el-icon--right"></i>
+            {{ username }}<i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
@@ -45,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../store/userStore';
 
@@ -54,7 +54,7 @@ console.log('MainLayout component rendered');
 const activeIndex = ref('1');
 const router = useRouter();
 const userStore = useUserStore();
-
+const username = computed(()=> userStore.user.username)
 const handleSelect = (key) => {
   console.log('Selected menu item:', key);
   activeIndex.value = key;
