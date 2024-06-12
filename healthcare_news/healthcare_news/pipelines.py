@@ -16,7 +16,7 @@ class HealthcareNewsPipeline:
 class JsonWriterPipeline:
 
     def open_spider(self, spider):
-        self.file = open('news_contents.jl', 'wb')
+        self.file = open('news_contents.json', 'wb')
         self.exporter = JsonLinesItemExporter(self.file, encoding='utf-8', ensure_ascii=False)
         self.exporter.start_exporting()
 
